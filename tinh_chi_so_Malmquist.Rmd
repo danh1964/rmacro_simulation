@@ -1,0 +1,85 @@
+---
+title: "tinh chi so malmquist"
+author: "Vo Thanh Danh"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load packages
+
+```{r}
+pacman::p_load(readxl, productivity)
+```
+
+
+# Load du lieu tu file.xlsx
+
+
+```{r}
+library(here)
+dta <- read_excel(here("mpi", "data", "tnhh_ctcp.xlsx"), sheet=1)
+head(dta)
+
+```
+
+
+# Chon bien phu hop cho DEA
+
+```{r}
+data_malmquist <- dta[, c("year", "type", "revenue", "labor", "capital")]
+
+```
+
+
+# # Chuyển dữ liệu thành ma trận đầu vào - đầu ra
+
+
+```{r}
+year <- data_malmquist$year
+type <- data_malmquist$type
+y <- as.matrix(data_malmquist$revenue)   
+x <- as.matrix(data_malmquist[, c("labor", "capital")])  
+
+```
+
+
+
+# Tính chỉ số Malmquist
+
+
+```{r}
+pacman::p_load(FEAR)
+malmquist_result <- malmquist(index = "M", xdata = x, ydata = y, time = year, id = type)
+
+print(malmquist_result)
+```
+
+
+# Xuất kết quả ra file CSV
+
+
+```{r}
+# Cài đặt gói nếu chưa có
+pacman::p_load("writexl")
+
+# Lưu kết quả dưới dạng Excel
+write_xlsx(malmquist_result, "malmquist_result.xlsx")
+
+```
+
+
+
+
+```{r}
+write.csv(malmquist_result, here("mpi", "data", "malmquist_result.csv", row.names = FALSE))
+```
+
+
+
+
+
+
